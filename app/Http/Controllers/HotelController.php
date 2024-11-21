@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Hotel;
+use App\Models\HotelRoom;
 
 class HotelController extends Controller
 {
@@ -21,8 +22,8 @@ class HotelController extends Controller
     public function store(Request $request)
     {
         // return $request->all();
-        $post = Hotel::create($request->all());
-        return response()->json($post, 201);
+        $hotel = Hotel::create($request->all());
+        return response()->json($hotel, 201);
     }
 
     /**
@@ -30,7 +31,7 @@ class HotelController extends Controller
      */
     public function show(string $id)
     {
-        return Hotel::find($id);
+        return Hotel::with('hotelroom')->find($id);
     }
 
 
@@ -48,5 +49,24 @@ class HotelController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function createTypeRoom(Request $request){
+        try {
+            $request->validate([ 'hotel_id' => 'required|exists:hotels,id', 'cantidad' => 'required|integer|min:0', ]);
+            // Obtener el registro de la tabla padre
+            $hotel = Hotel::findOrFail($request->hotel_id);
+            // Calcular la suma actual de los valores en la tabla hija
+            $currentTotal = $hotel->hotelroom->sum('cantidad');
+            // Validar que el nuevo valor no supere el total permitido
+            if ($currentTotal + $request->cantidad > $hotel->numero_habitaciones)
+            {
+                return response()->json([ 'error' => 'La suma de los valores en la tabla hija no puede superar el total permitido en la tabla padre.', ], 400);
+            }
+            $room = HotelRoom::create($request->all());
+            return response()->json($room, 201);
+        } catch (\Throwable $th) {
+            return response()->json([ 'error' => 'Tipo habitacion o Acomodacion ya existe', ], 400);
+        }
+
     }
 }

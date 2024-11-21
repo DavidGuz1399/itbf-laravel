@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('hotels', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
+            $table->string('nombre')->unique();
             $table->string('direccion');
             $table->string('ciudad');
             $table->string('nit');
-            $table->string('numero_habitaciones');
+            $table->integer('numero_habitaciones');
             $table->timestamps();
         });
     }
