@@ -9,6 +9,7 @@ class HotelRoom extends Model
 {
     protected $fillable = ['hotel_id','cantidad','tipo_habitacion','acomodacion'];
 
+    //Relacion con hotels
     public function hotel() {
         return $this->belongsTo(Hotel::class);
     }

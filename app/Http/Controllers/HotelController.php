@@ -53,14 +53,14 @@ class HotelController extends Controller
     public function createTypeRoom(Request $request){
         try {
             $request->validate([ 'hotel_id' => 'required|exists:hotels,id', 'cantidad' => 'required|integer|min:0', ]);
-            // Obtener el registro de la tabla padre
+            // Obtener el registro de la tabla hotels
             $hotel = Hotel::findOrFail($request->hotel_id);
-            // Calcular la suma actual de los valores en la tabla hija
+            // Calcular la suma actual de los valores en la tabla hotel_rooms
             $currentTotal = $hotel->hotelroom->sum('cantidad');
             // Validar que el nuevo valor no supere el total permitido
             if ($currentTotal + $request->cantidad > $hotel->numero_habitaciones)
             {
-                return response()->json([ 'error' => 'La suma de los valores en la tabla hija no puede superar el total permitido en la tabla padre.', ], 400);
+                return response()->json([ 'error' => 'La suma de los cantidades en la tabla hotel_rooms no puede superar la cantidad de habitaciones permitido en la tabla hotels.', ], 400);
             }
             $room = HotelRoom::create($request->all());
             return response()->json($room, 201);
